@@ -31,16 +31,12 @@ namespace AppConfigBoilerplate
         {
             get
             {
-                if (DevEnvIndicators == null)
-                {
-                    return true; // imply configuration not started yet(during deserializing) or AppConfig misconfigured
-                }
-
                 var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
-                if (string.IsNullOrEmpty(env))
+                // imply configuration not started yet(during deserializing) or app misconfigured / server misconfigured, default to dev
+                if (DevEnvIndicators == null || string.IsNullOrEmpty(env))
                 {
-                    return true; // server misconfigured, default to dev
+                    return true; 
                 }
 
                 return !DevEnvIndicators
@@ -56,9 +52,9 @@ namespace AppConfigBoilerplate
 
         private static IConfigurationRoot BuildConfigurationRoot()
         {
-            string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-            string basePath = Path.GetDirectoryName(typeof(Program).Assembly.Location);
-            string appSettingJsonFile = Path.Combine(basePath, "appsettings.json");
+            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            var basePath = Path.GetDirectoryName(typeof(Program).Assembly.Location);
+            var appSettingJsonFile = Path.Combine(basePath, "appsettings.json");
 
             if (!File.Exists(appSettingJsonFile))
             {
@@ -75,9 +71,7 @@ namespace AppConfigBoilerplate
                     optional: true,
                     reloadOnChange: true);
 
-            var config = configBuilder.Build();
-
-            return config;
+            return configBuilder.Build();
         }
 
         private static AppConfig BuildAppConfig()
